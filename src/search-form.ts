@@ -1,12 +1,11 @@
 import { renderBlock, GetCheckDate } from './lib.js'
 
 /*
-Найдите функцию renderSearchFormBlock и доработайте её следующим образом. 
-+Функция должна принимать дату въезда и дату выезда. 
-+При этом минимальная дата, которую можно выбрать это дата сегодняшнего дня, а максимальная дата - последний день следующего месяца. 
-+Будем считать это ограничениями сервиса. 
-+По умолчанию поля заполняются следующим образом. 
-+Дата въезда это следующий день от текущей даты. Дата выезда - плюс два дня от даты въезда.
+Создать интерфейс SearchFormData, в котором описать структуру для полей поисковой формы. 
+Написать функцию-обработчик формы search, которая собирает заполненные
+пользователем данные в формате описанной структуры и передаёт их в функцию поиска.
+Функция поиска принимает как аргумент переменную интерфейса SearchFormData, выводит
+полученный аргумент в консоль и ничего не возвращает
 */
 
 export function renderSearchFormBlock () {
@@ -54,8 +53,9 @@ export function renderSearchFormBlock () {
     </form>
     `
   )
+}
 
-
+export function search () {
   const form = document.querySelector('form');
   const checkInDate = (<HTMLInputElement>document.querySelector('#check-in-date')).value;
   const checkOutDate = (<HTMLInputElement>document.querySelector('#check-out-date')).value;
