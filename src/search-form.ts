@@ -1,14 +1,21 @@
 import { renderBlock, GetCheckDate } from './lib.js'
 
 /*
-Создать интерфейс SearchFormData, в котором описать структуру для полей поисковой формы. 
-Написать функцию-обработчик формы search, которая собирает заполненные
-пользователем данные в формате описанной структуры и передаёт их в функцию поиска.
++Создать интерфейс SearchFormData, в котором описать структуру для полей поисковой формы. 
++Написать функцию-обработчик формы search, которая собирает заполненные
++пользователем данные в формате описанной структуры и передаёт их в функцию поиска.
 Функция поиска принимает как аргумент переменную интерфейса SearchFormData, выводит
 полученный аргумент в консоль и ничего не возвращает
 */
 
-export function renderSearchFormBlock () {
+interface SearchFormData {
+  city: string;
+  checkInDate: string;
+  checkOutDate: string;
+  price: number;
+}
+
+export function renderSearchFormBlock (): void {
 
   const min = new GetCheckDate().minDayOfCheck();
   const max = new GetCheckDate().maxDayOfCheck();
@@ -55,16 +62,25 @@ export function renderSearchFormBlock () {
   )
 }
 
-export function search () {
+export function search ():SearchFormData {
   const form = document.querySelector('form');
-  const checkInDate = (<HTMLInputElement>document.querySelector('#check-in-date')).value;
-  const checkOutDate = (<HTMLInputElement>document.querySelector('#check-out-date')).value;
+  const city: string = (<HTMLInputElement>document.querySelector('#city')).value;
+  const checkInDate: string = (<HTMLInputElement>document.querySelector('#check-in-date')).value;
+  const checkOutDate: string = (<HTMLInputElement>document.querySelector('#check-out-date')).value;
+  const price: number = +(<HTMLInputElement>document.querySelector('#max-price')).value;
+
 
   if (form != null) {
     form.addEventListener('submit', (event) => {
       event.preventDefault();
 
-      console.log(`Check-in from ${checkInDate} to ${checkOutDate}`);
+      return {city, checkInDate, checkOutDate, price}
     })
   }
+
+  return ({city: '', checkInDate: '', checkOutDate: '', price: 0})
+}
+
+export function getResalt (enteredData: SearchFormData): void {
+  console.log(enteredData.city)
 }
