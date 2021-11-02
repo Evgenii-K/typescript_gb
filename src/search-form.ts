@@ -1,13 +1,5 @@
 import { renderBlock, GetCheckDate } from './lib.js'
 
-/*
-+Создать интерфейс SearchFormData, в котором описать структуру для полей поисковой формы. 
-+Написать функцию-обработчик формы search, которая собирает заполненные
-+пользователем данные в формате описанной структуры и передаёт их в функцию поиска.
-Функция поиска принимает как аргумент переменную интерфейса SearchFormData, выводит
-полученный аргумент в консоль и ничего не возвращает
-*/
-
 interface SearchFormData {
   city: string;
   checkInDate: string;
@@ -62,7 +54,7 @@ export function renderSearchFormBlock (): void {
   )
 }
 
-export function search ():SearchFormData {
+export function search (result: (data: SearchFormData) => void): void {
   const form = document.querySelector('form');
   const city: string = (<HTMLInputElement>document.querySelector('#city')).value;
   const checkInDate: string = (<HTMLInputElement>document.querySelector('#check-in-date')).value;
@@ -74,13 +66,13 @@ export function search ():SearchFormData {
     form.addEventListener('submit', (event) => {
       event.preventDefault();
 
-      return {city, checkInDate, checkOutDate, price}
+      result({city, checkInDate, checkOutDate, price})
     })
+  } else {
+    result({city: '', checkInDate: '', checkOutDate: '', price: 0})
   }
-
-  return ({city: '', checkInDate: '', checkOutDate: '', price: 0})
 }
 
-export function getResalt (enteredData: SearchFormData): void {
-  console.log(enteredData.city)
+export function getResult (enteredData: SearchFormData): void {
+  console.log(enteredData)
 }

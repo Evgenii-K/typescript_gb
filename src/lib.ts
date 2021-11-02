@@ -44,7 +44,7 @@ export class GetCheckDate {
   }
 
   minDayOfCheck() {
-    return `${this.year}-${this.month}-${this.day}`
+    return `${this.year}-${this.month}-${this.day < 10 ? '0' + this.day : this.day}`
   }
 
   maxDayOfCheck() {
@@ -59,6 +59,7 @@ export class GetCheckDate {
   placeholder(DaysOfBooking: number) {
     const date = this.today
     date.setDate(date.getDate() + DaysOfBooking);
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+    const day = date.getDate()
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${day < 10 ? '0' + day : day}`
   }
 }
