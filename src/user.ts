@@ -10,28 +10,48 @@
 
 import { renderBlock } from './lib.js'
 
+interface User {
+  username: string;
+  avatarUrl: string;
+}
+
+interface Avatar {
+  favoritesAmount: number
+}
+
+function isUser(value: unknown): value is User {
+  return typeof value === 'object'
+    && 'userName' in value
+    && 'avatarURL' in value
+}
+
+function isAvatar(value: unknown): value is Avatar {
+  return typeof value === 'object'
+    && 'favoritesAmount' in value
+}
+
 export function getUserData (): object {
-  const user: any = localStorage.getItem('user')
+  const res = localStorage.getItem('user')
   
-  if (user) {
-    return user.json()
+  let user: unknown = JSON.parse(res)
+
+  if (isUser(user)) {
+    return user
   }
 
-  return ({})
+  return ({username: '', avatarUrl: ''})
 }
 
 export function getFavoritesAmount (): number {
-  let favorite: any = localStorage.getItem('favoritesAmount')
+  const res = localStorage.getItem('favoritesAmount')
 
-  if (favorite) {
-    favorite = Number(favorite.json().favoritesAmount)
-  }
+  let favorite: unknown = JSON.parse(res)
 
-  if (isNaN(favorite)) {
-    return 0
+  if (isAvatar(favorite)) {
+    return favorite.favoritesAmount
   }
   
-  return favorite
+  return 0
 }
 
 export function renderUserBlock (userName: string, avatar: string, favoriteItemsAmount?: number) {
