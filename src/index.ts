@@ -1,4 +1,4 @@
-import { renderSearchFormBlock, search } from './search-form.js';
+import { renderSearchFormBlock, search, getResult } from './search-form.js';
 import { renderSearchStubBlock } from './search-results.js';
 import { renderUserBlock } from './user.js';
 import { renderToast } from './lib.js';
@@ -6,7 +6,7 @@ import { renderToast } from './lib.js';
 window.addEventListener('DOMContentLoaded', () => {
   renderUserBlock('Wade Warren', './img/avatar.png', 1);
   renderSearchFormBlock();
-  search();
+  search(getResult);
   renderSearchStubBlock();
   renderToast(
     {

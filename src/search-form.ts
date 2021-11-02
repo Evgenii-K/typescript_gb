@@ -62,7 +62,7 @@ export function renderSearchFormBlock (): void {
   )
 }
 
-export function search (): void {
+export function search (result: (data: SearchFormData) => void): void {
   const form = document.querySelector('form');
   const city: string = (<HTMLInputElement>document.querySelector('#city')).value;
   const checkInDate: string = (<HTMLInputElement>document.querySelector('#check-in-date')).value;
@@ -74,10 +74,10 @@ export function search (): void {
     form.addEventListener('submit', (event) => {
       event.preventDefault();
 
-      getResult({city, checkInDate, checkOutDate, price})
+      result({city, checkInDate, checkOutDate, price})
     })
   } else {
-    getResult({city: '', checkInDate: '', checkOutDate: '', price: 0})
+    result({city: '', checkInDate: '', checkOutDate: '', price: 0})
   }
 }
 
