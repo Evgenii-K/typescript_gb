@@ -7,6 +7,16 @@ interface SearchFormData {
   price: number;
 }
 
+interface Place {
+  id: string;
+  title: string;
+  details: string;
+  photos: Array<string>;
+  coordinates: Array<number>;
+  bookedDates: Array<any>;
+  price: number
+}
+
 export function renderSearchFormBlock (): void {
 
   const min = new GetCheckDate().minDayOfCheck();
