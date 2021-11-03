@@ -1,8 +1,10 @@
 import { renderBlock } from './lib.js'
 import { Places } from './search-form'
+import { renderUserBlock, getUserData, getFavoritesAmount } from './user.js';
 
 function isPlaces(value: unknown): value is Places {
   return typeof value === 'object'
+    && 'id' in value
     && 'name' in value
     && 'description' in value
     && 'remoteness' in value
@@ -38,21 +40,29 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
 
   let renderResult = ''
 
+  let favoriteItems = JSON.parse(localStorage.getItem('favoriteItems'))
+
   resultArr.forEach(result => {
 
     if (!isPlaces(result)) return
 
+    const id = result.id
     const image = result.image || ''
     const name = result.name
     const price = result.price
     const remoteness = result.remoteness
     const description = result.description
+    let active: string = ''
+
+    if(favoriteItems[id]) {
+      active = 'active'
+    }
 
     const block = `
       <li class="result">
         <div class="result-container">
           <div class="result-img-container">
-            <div class="favorites active"></div>
+            <div class="favorites ${active}" id="${id}"></div>
             <img class="result-img" src="${image}" alt="">
           </div>	
           <div class="result-info">
@@ -94,4 +104,38 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
     </ul>
     `
   )
+
+  if (renderResult) toggleFavoriteItem(resultArr)
+}
+
+export function toggleFavoriteItem(resultArr: Places[]): void {
+  const buttons = document.querySelectorAll('.favorites')
+
+  buttons.forEach(button => {
+    button.addEventListener('click', (event: Event): void => {
+      const id: string = event.target.id
+
+      let favoriteItems = JSON.parse(localStorage.getItem('favoriteItems'))
+
+      if (event.target.classList.contains('active')) {
+        delete favoriteItems[id]
+        localStorage.setItem('favoriteItems', JSON.stringify(favoriteItems))
+        event.target.classList.remove('active')
+        return
+      }
+
+      if(!favoriteItems) favoriteItems = {}
+
+      const hotel = resultArr.find(result => result.id == id)
+
+      favoriteItems[id] = {
+        id: hotel.id,
+        name: hotel.name,
+        image: hotel.image
+      }
+
+      event.target.classList.add('active')
+      localStorage.setItem('favoriteItems', JSON.stringify(favoriteItems))
+    })
+  })
 }
