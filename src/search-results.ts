@@ -83,7 +83,7 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
     if (!isPlaces(result)) return
 
     const id = result.id
-    const image = result.image || ''
+    const image = result.image[0] || ''
     const name = result.name
     const price = result.price
     const remoteness = result.remoteness
@@ -118,8 +118,12 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
       </li>
     `
     renderResult = renderResult + block
-
   })
+
+  if (!renderResult) {
+    renderEmptyOrErrorSearchBlock('Поиск не дал результата')
+    return
+  }
 
   renderBlock(
     'search-results-block',
@@ -140,8 +144,8 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
     </ul>
     `
   )
-
-  if (renderResult) toggleFavoriteItem(resultArr, favoriteItems)
+  
+  toggleFavoriteItem(resultArr, favoriteItems)
 }
 
 export function getFavoriteItems(): FavoriteItems | Object {
@@ -163,8 +167,6 @@ export function toggleFavoriteItem(resultArr: Places[], favoriteItems: FavoriteI
 
   function listener (event: Event ): any {
     const target = event.target as HTMLButtonElement
-
-    console.log('target', target)
 
     const id: string = target.id
 
