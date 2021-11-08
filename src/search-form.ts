@@ -23,11 +23,13 @@ export interface Places {
 
 export function renderSearchFormBlock (): void {
 
-  const min = new GetCheckDate().minDayOfCheck();
-  const max = new GetCheckDate().maxDayOfCheck();
+  const getCheckDate = new GetCheckDate()
 
-  const checkInPlaceholder = new GetCheckDate().placeholder(1);
-  const checkOutPlaceholder = new GetCheckDate().placeholder(3);
+  const min = getCheckDate.minDayOfCheck();
+  const max = getCheckDate.maxDayOfCheck();
+
+  const checkInPlaceholder = getCheckDate.placeholder(1);
+  const checkOutPlaceholder = getCheckDate.placeholder(3);
 
   renderBlock(
     'search-form-block',

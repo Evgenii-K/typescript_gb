@@ -165,7 +165,7 @@ export function getFavoriteItems(): FavoriteItems | Object {
 export function toggleFavoriteItem(resultArr: Places[], favoriteItems: FavoriteItems | Object): void {
   const buttons = document.querySelectorAll('.favorites')
 
-  function listener (event: Event ): any {
+  function listener (event: Event ): void {
     const target = event.target as HTMLButtonElement
 
     const id: string = target.id
