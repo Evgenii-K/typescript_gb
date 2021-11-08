@@ -1,36 +1,17 @@
-/*
-Написать две функции. 
-+Первая getUserData, которая читает из localStorage ключ user.
-+Подразумевается, что ключ содержит объект с полями username и avatarUrl. 
-+Вторая функция getFavoritesAmount, которая читает из lacalStorage ключ favoritesAmount. 
-+Ключ должен содержать количество предметов, добавленных пользователем в избранное. 
-+Для обеих функций применить подход с unknown, чтобы валидировать содержимое localStorage.
-+Написать функцию renderUserBlock, которая принимает имя пользователя, ссылку на аватар
-*/
-
 import { renderBlock } from './lib.js'
 
-interface User {
+export interface User {
   username: string;
   avatarUrl: string;
 }
 
-interface Avatar {
-  favoritesAmount: number
-}
-
 function isUser(value: unknown): value is User {
   return typeof value === 'object'
-    && 'userName' in value
-    && 'avatarURL' in value
+    && 'username' in value
+    && 'avatarUrl' in value
 }
 
-function isAvatar(value: unknown): value is Avatar {
-  return typeof value === 'object'
-    && 'favoritesAmount' in value
-}
-
-export function getUserData (): object {
+export function getUserData (): User {
   const res = localStorage.getItem('user')
   
   let user: unknown = JSON.parse(res)
@@ -43,18 +24,20 @@ export function getUserData (): object {
 }
 
 export function getFavoritesAmount (): number {
-  const res = localStorage.getItem('favoritesAmount')
+  const res = localStorage.getItem('favoriteItems')
+
+  if(!res) return 0
 
   let favorite: unknown = JSON.parse(res)
 
-  if (isAvatar(favorite)) {
-    return favorite.favoritesAmount
+  if (typeof favorite === 'object') {
+    return Object.keys(favorite).length
   }
   
   return 0
 }
 
-export function renderUserBlock (userName: string, avatar: string, favoriteItemsAmount?: number) {
+export function renderUserBlock ({ username, avatarUrl }: User, favoriteItemsAmount?: number) {
   const favoritesCaption = favoriteItemsAmount ? favoriteItemsAmount : 'ничего нет'
   const hasFavoriteItems = favoriteItemsAmount ? true : false
 
@@ -62,9 +45,9 @@ export function renderUserBlock (userName: string, avatar: string, favoriteItems
     'user-block',
     `
     <div class="header-container">
-      <img class="avatar" src="${avatar}" alt="Wade Warren" />
+      <img class="avatar" src="${avatarUrl}" alt="Wade Warren" />
       <div class="info">
-          <p class="name">${userName}</p>
+          <p class="name">${username}</p>
           <p class="fav">
             <i class="heart-icon${hasFavoriteItems ? ' active' : ''}"></i>${favoritesCaption}
           </p>

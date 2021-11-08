@@ -1,18 +1,22 @@
 import { renderBlock, GetCheckDate } from './lib.js'
+import { renderEmptyOrErrorSearchBlock, renderSearchResultsBlock } from './search-results.js';
 
-/*
-+Создать интерфейс SearchFormData, в котором описать структуру для полей поисковой формы. 
-+Написать функцию-обработчик формы search, которая собирает заполненные
-+пользователем данные в формате описанной структуры и передаёт их в функцию поиска.
-Функция поиска принимает как аргумент переменную интерфейса SearchFormData, выводит
-полученный аргумент в консоль и ничего не возвращает
-*/
 
 interface SearchFormData {
   city: string;
   checkInDate: string;
   checkOutDate: string;
   price: number;
+}
+
+export interface Places {
+  id: string;
+  name: string;
+  description: string;
+  image?: string;
+  remoteness: number;
+  bookedDates?: Array<any>;
+  price: number
 }
 
 export function renderSearchFormBlock (): void {
@@ -62,19 +66,24 @@ export function renderSearchFormBlock (): void {
   )
 }
 
-export function search (result: (data: SearchFormData) => void): void {
+export function search (result: (data: SearchFormData) => void, cb: (res: string | Places[]) => void) {
   const form = document.querySelector('form');
-  const city: string = (<HTMLInputElement>document.querySelector('#city')).value;
-  const checkInDate: string = (<HTMLInputElement>document.querySelector('#check-in-date')).value;
-  const checkOutDate: string = (<HTMLInputElement>document.querySelector('#check-out-date')).value;
-  const price: number = +(<HTMLInputElement>document.querySelector('#max-price')).value;
-
 
   if (form != null) {
     form.addEventListener('submit', (event) => {
       event.preventDefault();
 
+      const city: string = (<HTMLInputElement>document.querySelector('#city')).value;
+      const checkInDate: string = (<HTMLInputElement>document.querySelector('#check-in-date')).value;
+      const checkOutDate: string = (<HTMLInputElement>document.querySelector('#check-out-date')).value;
+      const price: number = +(<HTMLInputElement>document.querySelector('#max-price')).value;
+      
       result({city, checkInDate, checkOutDate, price})
+
+      fetch('/places')
+      .then(res => res.json())
+      .then(data => cb(data))
+      .catch(err => cb(err))
     })
   } else {
     result({city: '', checkInDate: '', checkOutDate: '', price: 0})
@@ -83,4 +92,17 @@ export function search (result: (data: SearchFormData) => void): void {
 
 export function getResult (enteredData: SearchFormData): void {
   console.log(enteredData)
+}
+
+export function getPlaces (res: string | object): void {
+
+  if(typeof res === 'string') {
+    renderEmptyOrErrorSearchBlock(res)
+  } else {
+    let arr = []
+    for(let key in res) {
+      arr.push(res[key])
+    }
+    renderSearchResultsBlock(arr)
+  }
 }
