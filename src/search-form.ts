@@ -1,8 +1,5 @@
 import { renderBlock, GetCheckDate } from './lib.js'
 import { renderEmptyOrErrorSearchBlock, renderSearchResultsBlock } from './search-results.js';
-import { FlatRentSdk } from './flat-rent-sdk.js'
-import { IFormattedFlat } from './flat-rent-sdk.d'
-
 
 export interface SearchFormData {
   city: string;
@@ -70,7 +67,7 @@ export function renderSearchFormBlock (): void {
   )
 }
 
-export function search (result: (data: SearchFormData) => void, cb: (res: string | Places[]) => void): void {
+export function search (result: (data: SearchFormData) => Promise<Places[]>, cb: () => Promise<Places[]>): void {
   const form = document.querySelector('form');
 
   if (form != null) {
@@ -85,65 +82,23 @@ export function search (result: (data: SearchFormData) => void, cb: (res: string
       const checkInDate: Date = new Date(checkIn)
       const checkOutDate: Date = new Date(checkOut)
 
-      
-      result({city, checkInDate, checkOutDate, price})
+      Promise.all([
+        result({city, checkInDate, checkOutDate, price}),
+        cb()
+      ])
+      .then(results => {
 
-      // fetch('/places')
-      // .then(res => res.json())
-      // .then(data => cb(data))
-      // .catch(err => cb(err))
+        const allResults: Places[] = [].concat(results[0], results[1])
+  
+        renderSearchResultsBlock(allResults)
+      })
+      .catch(err => {
+        renderEmptyOrErrorSearchBlock('Поиск не дал результата')
+        console.log(err)
+      })
+
     })
   } else {
     renderEmptyOrErrorSearchBlock('Поиск не дал результата')
-  }
-}
-
-export function getResult (enteredData: SearchFormData): void {
-
-
-    const sdk = new FlatRentSdk()
-
-    function formatResult(result: IFormattedFlat[]):Places[] {
-
-      const formstOfResult = []
-
-      result.forEach((item, key) => {
-
-        let place = {} as Places
-
-        place.id = item.id
-        place.name = item.title
-        place.description = item.details
-        place.image = item.photos
-        place.remoteness = 0
-        place.bookedDates = item.bookedDates
-        place.price = item.totalPrice
-
-        formstOfResult.push(place)
-      })
-
-      return formstOfResult
-    }
-
-    sdk.search(enteredData)
-        .then(result => {
-          if (typeof result === 'string') {
-            throw new Error('Поиск по SDK не дал результата')
-          }
-          renderSearchResultsBlock(formatResult(result))
-        })
-        .catch(err => renderEmptyOrErrorSearchBlock(err))
-}
-
-export function getPlaces (res: string | object): void {
-
-  if(typeof res === 'string') {
-    renderEmptyOrErrorSearchBlock(res)
-  } else {
-    let arr = []
-    for(let key in res) {
-      arr.push(res[key])
-    }
-    renderSearchResultsBlock(arr)
   }
 }

@@ -1,5 +1,6 @@
 import { renderBlock } from './lib.js'
 import { Places } from './search-form'
+import { resultsFilter } from './results-filter'
 
 function isPlaces(value: unknown): value is Places {
   return typeof value === 'object'
@@ -120,11 +121,6 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
     renderResult = renderResult + block
   })
 
-  if (!renderResult) {
-    renderEmptyOrErrorSearchBlock('Поиск не дал результата')
-    return
-  }
-
   renderBlock(
     'search-results-block',
     `
@@ -133,9 +129,9 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
         <div class="search-results-filter">
             <span><i class="icon icon-filter"></i> Сортировать:</span>
             <select>
-                <option selected="">Сначала дешёвые</option>
-                <option selected="">Сначала дорогие</option>
-                <option>Сначала ближе</option>
+                <option value="value_1">Сначала дешёвые</option>
+                <option value="value_2">Сначала дорогие</option>
+                <option value="value_3">По названию</option>
             </select>
         </div>
     </div>
@@ -146,6 +142,7 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
   )
   
   toggleFavoriteItem(resultArr, favoriteItems)
+  resultsFilter(resultArr)
 }
 
 export function getFavoriteItems(): FavoriteItems | Object {

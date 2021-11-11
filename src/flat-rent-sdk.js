@@ -46,9 +46,9 @@ export function addDays(date, days) {
     return date
 }
 
-export const backendPort = 5500
+export const backendPort = 3000
 export const localStorageKey = 'flat-rent-db'
-export const url = 'http://127.0.0.1'
+export const url = 'http://localhost'
 
 export class FlatRentSdk {
     constructor() {
@@ -227,7 +227,7 @@ export class FlatRentSdk {
         const formattedFlat = Object.assign({}, flat)
 
         formattedFlat.photos = formattedFlat.photos.map((photoUrl) => {
-            return `${url}:${backendPort}/public/img/${photoUrl}`
+            return `${url}:${backendPort}/img/${photoUrl}`
         })
 
         if (nightNumber != null) {
