@@ -1,6 +1,6 @@
 import { renderBlock } from './lib.js'
 import { Places } from './search-form'
-import { resultsFilter } from './results-filter'
+import { resultsFilter } from './results-filter.js'
 
 function isPlaces(value: unknown): value is Places {
   return typeof value === 'object'
@@ -129,9 +129,9 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
         <div class="search-results-filter">
             <span><i class="icon icon-filter"></i> Сортировать:</span>
             <select>
-                <option value="value_1">Сначала дешёвые</option>
-                <option value="value_2">Сначала дорогие</option>
-                <option value="value_3">По названию</option>
+                <option value="cheap">Сначала дешёвые</option>
+                <option value="expensive">Сначала дорогие</option>
+                <option value="name">По названию</option>
             </select>
         </div>
     </div>
