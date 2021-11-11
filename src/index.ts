@@ -1,4 +1,6 @@
-import { renderSearchFormBlock, search, getResult, getPlaces } from './search-form.js';
+import { renderSearchFormBlock, search } from './search-form.js';
+import { fromSdk } from './search-from-sdk.js'
+import { fromApi } from './search-from-api.js'
 import { renderSearchStubBlock } from './search-results.js';
 import { renderUserBlock, getUserData, getFavoritesAmount } from './user.js';
 import { renderToast } from './lib.js';
@@ -13,7 +15,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   renderUserBlock(getUserData(), getFavoritesAmount());
   renderSearchFormBlock();
-  search(getResult, getPlaces);
+  search(fromSdk, fromApi);
   renderSearchStubBlock();
   renderToast(
     {

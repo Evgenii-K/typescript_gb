@@ -1,5 +1,6 @@
 import { renderBlock } from './lib.js'
 import { Places } from './search-form'
+import { resultsFilter } from './results-filter.js'
 
 function isPlaces(value: unknown): value is Places {
   return typeof value === 'object'
@@ -83,7 +84,7 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
     if (!isPlaces(result)) return
 
     const id = result.id
-    const image = result.image || ''
+    const image = result.image[0] || ''
     const name = result.name
     const price = result.price
     const remoteness = result.remoteness
@@ -118,7 +119,6 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
       </li>
     `
     renderResult = renderResult + block
-
   })
 
   renderBlock(
@@ -129,9 +129,9 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
         <div class="search-results-filter">
             <span><i class="icon icon-filter"></i> Сортировать:</span>
             <select>
-                <option selected="">Сначала дешёвые</option>
-                <option selected="">Сначала дорогие</option>
-                <option>Сначала ближе</option>
+                <option value="cheap">Сначала дешёвые</option>
+                <option value="expensive">Сначала дорогие</option>
+                <option value="name">По названию</option>
             </select>
         </div>
     </div>
@@ -140,8 +140,9 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
     </ul>
     `
   )
-
-  if (renderResult) toggleFavoriteItem(resultArr, favoriteItems)
+  
+  toggleFavoriteItem(resultArr, favoriteItems)
+  resultsFilter(resultArr)
 }
 
 export function getFavoriteItems(): FavoriteItems | Object {
@@ -161,10 +162,8 @@ export function getFavoriteItems(): FavoriteItems | Object {
 export function toggleFavoriteItem(resultArr: Places[], favoriteItems: FavoriteItems | Object): void {
   const buttons = document.querySelectorAll('.favorites')
 
-  function listener (event: Event ): any {
+  function listener (event: Event ): void {
     const target = event.target as HTMLButtonElement
-
-    console.log('target', target)
 
     const id: string = target.id
 
