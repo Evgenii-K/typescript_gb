@@ -88,7 +88,7 @@ export function search (result: (data: SearchFormData) => Promise<Places[]>, cb:
       ])
       .then(results => {
 
-        const allResults: Places[] = [].concat(results[0], results[1])
+        const allResults: Places[] = [...results[0], ...results[1]]
   
         renderSearchResultsBlock(allResults)
       })

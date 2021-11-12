@@ -7,12 +7,15 @@ export interface User {
 
 function isUser(value: unknown): value is User {
   return typeof value === 'object'
+    && value !== null
     && 'username' in value
     && 'avatarUrl' in value
 }
 
 export function getUserData (): User {
   const res = localStorage.getItem('user')
+
+  if (!res) return ({username: '', avatarUrl: ''})
   
   let user: unknown = JSON.parse(res)
 
@@ -31,6 +34,7 @@ export function getFavoritesAmount (): number {
   let favorite: unknown = JSON.parse(res)
 
   if (typeof favorite === 'object') {
+    if (!favorite) return 0
     return Object.keys(favorite).length
   }
   

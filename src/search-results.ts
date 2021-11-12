@@ -4,6 +4,7 @@ import { resultsFilter } from './results-filter.js'
 
 function isPlaces(value: unknown): value is Places {
   return typeof value === 'object'
+    && value !== null
     && 'id' in value
     && 'name' in value
     && 'description' in value
@@ -35,6 +36,7 @@ interface FavoriteItems {
 
 function isItemOfFavorite (value: unknown): value is FavoriteItem {
   return typeof value === 'object'
+    && value !== null
     && 'id' in value
     && 'name' in value
     && 'image' in value
@@ -51,6 +53,7 @@ function isFavoriteItem (values: Array<unknown>): boolean {
 function isFavoriteItems(value: unknown): value is FavoriteItems {
 
   if (typeof value === 'object') {
+    if(!value) return false
     const porp = Object.values(value)
 
     return typeof value === 'object' && isFavoriteItem(porp)
@@ -79,7 +82,7 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
 
   let renderResult = ''
 
-  resultArr.forEach(result => {
+  resultArr.forEach((result: Places) => {
 
     if (!isPlaces(result)) return
 
@@ -91,7 +94,7 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
     const description = result.description
     let active: string = ''
 
-    if(favoriteItems[id]) {
+    if(isFavoriteItems(favoriteItems) && favoriteItems[id]) {
       active = 'active'
     }
 
@@ -148,11 +151,13 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
 export function getFavoriteItems(): FavoriteItems | Object {
   const res = localStorage.getItem('favoriteItems')
 
-  let favoriteItems: unknown = JSON.parse(res)
+  if(res) {
+    let favoriteItems: unknown = JSON.parse(res)
 
-  if(isFavoriteItems(favoriteItems)) {
-    return favoriteItems
-  } 
+    if(isFavoriteItems(favoriteItems)) {
+      return favoriteItems
+    } 
+  }
 
   localStorage.setItem('favoriteItems', JSON.stringify({}))
 
@@ -171,25 +176,31 @@ export function toggleFavoriteItem(resultArr: Places[], favoriteItems: FavoriteI
       
       target.classList.remove('active')
 
-      delete favoriteItems[id]
+      if(isFavoriteItems(favoriteItems) && favoriteItems[id]) {
+        delete favoriteItems[id]
+      }
       localStorage.setItem('favoriteItems', JSON.stringify(favoriteItems))
       
       return
     }
 
-    const hotel: Places = resultArr.find(result => result.id == id)
+    const hotel: Places | undefined = resultArr.find(result => result.id == id)
 
-    favoriteItems[id] = {
-      id: hotel.id,
-      name: hotel.name,
-      image: hotel.image
+    if (hotel) {
+      if(isFavoriteItems(favoriteItems) && favoriteItems[id]) {
+        favoriteItems[id] = {
+          id: hotel.id,
+          name: hotel.name,
+          image: hotel.image[0]
+        }
+      }
     }
 
     target.classList.add('active')
     localStorage.setItem('favoriteItems', JSON.stringify(favoriteItems))
   }
 
-  buttons.forEach((button: HTMLElement | null) => {
+  buttons.forEach((button: Element | null) => {
     button?.addEventListener('click', listener)
   })
 }

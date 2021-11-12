@@ -6,9 +6,9 @@ import { renderUserBlock, getUserData, getFavoritesAmount } from './user.js';
 import { renderToast } from './lib.js';
 
 window.addEventListener('DOMContentLoaded', () => {
-
-  const json = JSON.parse(localStorage.getItem('favoriteItems'))
-  if(json === null) localStorage.setItem('favoriteItems', JSON.stringify({}))
+  if (!localStorage.getItem('favoriteItems')) {
+    localStorage.setItem('favoriteItems', JSON.stringify({}))
+  }
   
   const userObject = {username: 'Wade Warren', avatarUrl: './img/avatar.png'}
   localStorage.setItem('user', JSON.stringify(userObject))

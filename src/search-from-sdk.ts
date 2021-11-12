@@ -8,7 +8,7 @@ export function fromSdk (enteredData: SearchFormData): Promise<Places[]> {
 
   function formatResult(result: IFormattedFlat[]):Places[] {
 
-    const formatOfResult = []
+    const formatOfResult:Places[] = []
 
     result.forEach((item, key) => {
 
