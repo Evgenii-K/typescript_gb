@@ -10,27 +10,30 @@ export function resultsFilter(resultArr: Places[]): void {
   const button = filter.querySelector('span')
   const selector = filter.querySelector('select')
 
-  
+  type KeysOfPlaces = keyof Places
 
-  interface ISearchParams {
-    cheap: 'price',
-    expensive: 'reverse',
-    name: 'name'
+  function isKeysOfPlaces (value: string): value is KeysOfPlaces {
+    return ['id', 'name', 'description', 'image', 'remoteness', 'bookedDates', 'price'].includes(value)
+  }
+  
+  enum searchParams {
+    cheap = 'price',
+    expensive = 'reverse',
+    name = 'name'
   }
 
-  type KeysOfPlace = keyof Places
+  type KeysOfSearchParams = keyof typeof searchParams
 
-  type KeyOfSearchPrams = keyof ISearchParams
+  function isSearchParamsIncludes (value: string): value is KeysOfSearchParams {
+    return Object.keys(searchParams).some((v) => v === value)
+  }
 
+  function byField(field: keyof Places ) {
 
-  function byField(field: KeysOfPlace) {
     return (a: Places, b: Places): number => {
 
-      if (a) return -1
-      if (b) return -1
-
       if (typeof a[field] === 'string' && typeof b[field] === 'string') {
-        return a[field] > b[field] ? 1 : -1
+        return a[field]! > b[field]! ? 1 : -1
       }
 
       return -1
@@ -40,20 +43,17 @@ export function resultsFilter(resultArr: Places[]): void {
 
       if(!selector) return
 
-      const en: KeyOfSearchPrams = selector.value as KeyOfSearchPrams
+      const selected: string = selector.value
 
-      const field: searchParams = searchParams[en]
-
-      if (!searchParams.hasOwnProperty(selector.value)) {
-        return
-      }
-        
+      if (!isSearchParamsIncludes(selected)) return
       
+      const field: string = searchParams[selected]
+
+      if (isKeysOfPlaces(field) || field !== 'reverse') return
 
       const sorted: Places[] = field === 'reverse'
         ? resultArr.sort(byField('price')).reverse()
         : resultArr.sort(byField(field))
-
   
       renderSearchResultsBlock(sorted)
   }
