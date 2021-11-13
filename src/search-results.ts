@@ -187,11 +187,18 @@ export function toggleFavoriteItem(resultArr: Places[], favoriteItems: FavoriteI
     const hotel: Places | undefined = resultArr.find(result => result.id == id)
 
     if (hotel) {
+
+      let hotelImage = hotel.image[0]
+
+      if(typeof hotelImage !== 'string') {
+        hotelImage = ''
+      }
+
       if(isFavoriteItems(favoriteItems) && favoriteItems[id]) {
         favoriteItems[id] = {
           id: hotel.id,
           name: hotel.name,
-          image: hotel.image[0]
+          image: hotelImage
         }
       }
     }
