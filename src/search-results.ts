@@ -1,8 +1,10 @@
 import { renderBlock } from './lib.js'
 import { Places } from './search-form'
+import { resultsFilter } from './results-filter.js'
 
 function isPlaces(value: unknown): value is Places {
   return typeof value === 'object'
+    && value !== null
     && 'id' in value
     && 'name' in value
     && 'description' in value
@@ -34,6 +36,7 @@ interface FavoriteItems {
 
 function isItemOfFavorite (value: unknown): value is FavoriteItem {
   return typeof value === 'object'
+    && value !== null
     && 'id' in value
     && 'name' in value
     && 'image' in value
@@ -50,6 +53,7 @@ function isFavoriteItem (values: Array<unknown>): boolean {
 function isFavoriteItems(value: unknown): value is FavoriteItems {
 
   if (typeof value === 'object') {
+    if(!value) return false
     const porp = Object.values(value)
 
     return typeof value === 'object' && isFavoriteItem(porp)
@@ -78,19 +82,19 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
 
   let renderResult = ''
 
-  resultArr.forEach(result => {
+  resultArr.forEach((result: Places) => {
 
     if (!isPlaces(result)) return
 
     const id = result.id
-    const image = result.image || ''
+    const image = result.image[0] || ''
     const name = result.name
     const price = result.price
     const remoteness = result.remoteness
     const description = result.description
     let active: string = ''
 
-    if(favoriteItems[id]) {
+    if(isFavoriteItems(favoriteItems) && favoriteItems[id]) {
       active = 'active'
     }
 
@@ -118,7 +122,6 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
       </li>
     `
     renderResult = renderResult + block
-
   })
 
   renderBlock(
@@ -129,9 +132,9 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
         <div class="search-results-filter">
             <span><i class="icon icon-filter"></i> Сортировать:</span>
             <select>
-                <option selected="">Сначала дешёвые</option>
-                <option selected="">Сначала дорогие</option>
-                <option>Сначала ближе</option>
+                <option value="cheap">Сначала дешёвые</option>
+                <option value="expensive">Сначала дорогие</option>
+                <option value="name">По названию</option>
             </select>
         </div>
     </div>
@@ -140,18 +143,21 @@ export function renderSearchResultsBlock (resultArr: Places[]) {
     </ul>
     `
   )
-
-  if (renderResult) toggleFavoriteItem(resultArr, favoriteItems)
+  
+  toggleFavoriteItem(resultArr, favoriteItems)
+  resultsFilter(resultArr)
 }
 
 export function getFavoriteItems(): FavoriteItems | Object {
   const res = localStorage.getItem('favoriteItems')
 
-  let favoriteItems: unknown = JSON.parse(res)
+  if(res) {
+    let favoriteItems: unknown = JSON.parse(res)
 
-  if(isFavoriteItems(favoriteItems)) {
-    return favoriteItems
-  } 
+    if(isFavoriteItems(favoriteItems)) {
+      return favoriteItems
+    } 
+  }
 
   localStorage.setItem('favoriteItems', JSON.stringify({}))
 
@@ -161,10 +167,8 @@ export function getFavoriteItems(): FavoriteItems | Object {
 export function toggleFavoriteItem(resultArr: Places[], favoriteItems: FavoriteItems | Object): void {
   const buttons = document.querySelectorAll('.favorites')
 
-  function listener (event: Event ): any {
+  function listener (event: Event ): void {
     const target = event.target as HTMLButtonElement
-
-    console.log('target', target)
 
     const id: string = target.id
 
@@ -172,25 +176,38 @@ export function toggleFavoriteItem(resultArr: Places[], favoriteItems: FavoriteI
       
       target.classList.remove('active')
 
-      delete favoriteItems[id]
+      if(isFavoriteItems(favoriteItems) && favoriteItems[id]) {
+        delete favoriteItems[id]
+      }
       localStorage.setItem('favoriteItems', JSON.stringify(favoriteItems))
       
       return
     }
 
-    const hotel: Places = resultArr.find(result => result.id == id)
+    const hotel: Places | undefined = resultArr.find(result => result.id == id)
 
-    favoriteItems[id] = {
-      id: hotel.id,
-      name: hotel.name,
-      image: hotel.image
+    if (hotel) {
+
+      let hotelImage = hotel.image[0]
+
+      if(typeof hotelImage !== 'string') {
+        hotelImage = ''
+      }
+
+      if(isFavoriteItems(favoriteItems) && favoriteItems[id]) {
+        favoriteItems[id] = {
+          id: hotel.id,
+          name: hotel.name,
+          image: hotelImage
+        }
+      }
     }
 
     target.classList.add('active')
     localStorage.setItem('favoriteItems', JSON.stringify(favoriteItems))
   }
 
-  buttons.forEach((button: HTMLElement | null) => {
+  buttons.forEach((button: Element | null) => {
     button?.addEventListener('click', listener)
   })
 }

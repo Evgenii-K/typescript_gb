@@ -1,19 +1,18 @@
 import { renderBlock, GetCheckDate } from './lib.js'
 import { renderEmptyOrErrorSearchBlock, renderSearchResultsBlock } from './search-results.js';
 
-
-interface SearchFormData {
+export interface SearchFormData {
   city: string;
-  checkInDate: string;
-  checkOutDate: string;
-  price: number;
+  checkInDate: Date;
+  checkOutDate: Date;
+  price?: number;
 }
 
 export interface Places {
   id: string;
   name: string;
   description: string;
-  image?: string;
+  image: string[];
   remoteness: number;
   bookedDates?: Array<any>;
   price: number
@@ -21,11 +20,13 @@ export interface Places {
 
 export function renderSearchFormBlock (): void {
 
-  const min = new GetCheckDate().minDayOfCheck();
-  const max = new GetCheckDate().maxDayOfCheck();
+  const getCheckDate = new GetCheckDate()
 
-  const checkInPlaceholder = new GetCheckDate().placeholder(1);
-  const checkOutPlaceholder = new GetCheckDate().placeholder(3);
+  const min = getCheckDate.minDayOfCheck();
+  const max = getCheckDate.maxDayOfCheck();
+
+  const checkInPlaceholder = getCheckDate.placeholder(1);
+  const checkOutPlaceholder = getCheckDate.placeholder(3);
 
   renderBlock(
     'search-form-block',
@@ -66,7 +67,7 @@ export function renderSearchFormBlock (): void {
   )
 }
 
-export function search (result: (data: SearchFormData) => void, cb: (res: string | Places[]) => void) {
+export function search (result: (data: SearchFormData) => Promise<Places[]>, cb: () => Promise<Places[]>): void {
   const form = document.querySelector('form');
 
   if (form != null) {
@@ -74,35 +75,30 @@ export function search (result: (data: SearchFormData) => void, cb: (res: string
       event.preventDefault();
 
       const city: string = (<HTMLInputElement>document.querySelector('#city')).value;
-      const checkInDate: string = (<HTMLInputElement>document.querySelector('#check-in-date')).value;
-      const checkOutDate: string = (<HTMLInputElement>document.querySelector('#check-out-date')).value;
+      const checkIn: number = (<HTMLInputElement>document.querySelector('#check-in-date')).valueAsNumber;
+      const checkOut: number = (<HTMLInputElement>document.querySelector('#check-out-date')).valueAsNumber;
       const price: number = +(<HTMLInputElement>document.querySelector('#max-price')).value;
-      
-      result({city, checkInDate, checkOutDate, price})
 
-      fetch('/places')
-      .then(res => res.json())
-      .then(data => cb(data))
-      .catch(err => cb(err))
+      const checkInDate: Date = new Date(checkIn)
+      const checkOutDate: Date = new Date(checkOut)
+
+      Promise.all([
+        result({city, checkInDate, checkOutDate, price}),
+        cb()
+      ])
+      .then(results => {
+
+        const allResults: Places[] = [...results[0], ...results[1]]
+  
+        renderSearchResultsBlock(allResults)
+      })
+      .catch(err => {
+        renderEmptyOrErrorSearchBlock('Поиск не дал результата')
+        console.log(err)
+      })
+
     })
   } else {
-    result({city: '', checkInDate: '', checkOutDate: '', price: 0})
-  }
-}
-
-export function getResult (enteredData: SearchFormData): void {
-  console.log(enteredData)
-}
-
-export function getPlaces (res: string | object): void {
-
-  if(typeof res === 'string') {
-    renderEmptyOrErrorSearchBlock(res)
-  } else {
-    let arr = []
-    for(let key in res) {
-      arr.push(res[key])
-    }
-    renderSearchResultsBlock(arr)
+    renderEmptyOrErrorSearchBlock('Поиск не дал результата')
   }
 }

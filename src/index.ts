@@ -1,19 +1,21 @@
-import { renderSearchFormBlock, search, getResult, getPlaces } from './search-form.js';
+import { renderSearchFormBlock, search } from './search-form.js';
+import { fromSdk } from './search-from-sdk.js'
+import { fromApi } from './search-from-api.js'
 import { renderSearchStubBlock } from './search-results.js';
 import { renderUserBlock, getUserData, getFavoritesAmount } from './user.js';
 import { renderToast } from './lib.js';
 
 window.addEventListener('DOMContentLoaded', () => {
-
-  const json = JSON.parse(localStorage.getItem('favoriteItems'))
-  if(json === null) localStorage.setItem('favoriteItems', JSON.stringify({}))
+  if (!localStorage.getItem('favoriteItems')) {
+    localStorage.setItem('favoriteItems', JSON.stringify({}))
+  }
   
   const userObject = {username: 'Wade Warren', avatarUrl: './img/avatar.png'}
   localStorage.setItem('user', JSON.stringify(userObject))
 
   renderUserBlock(getUserData(), getFavoritesAmount());
   renderSearchFormBlock();
-  search(getResult, getPlaces);
+  search(fromSdk, fromApi);
   renderSearchStubBlock();
   renderToast(
     {
